@@ -1,0 +1,24 @@
+{
+  "extends": [
+    "standard"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "env": {
+    "es6": true
+  },
+
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "rules": {
+    // don't force es6 functions to include space before paren
+    "space-before-function-paren": 0,
+    "indent": ["error", 4],
+    "spaced-comment": ["error", "always"]
+  },
+  "globals": {
+    "localStorage": true,
+    "fetch": true
+  }
+}
