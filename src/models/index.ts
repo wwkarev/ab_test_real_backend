@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize'
 import path from 'path'
 import dotenv from 'dotenv'
 import { UserActivityFactory } from './userActivity'
+import { RetentionQueriesProfileFactory } from './retentionQueriesProfile'
 
 dotenv.config()
 
@@ -14,4 +15,7 @@ export const dbConfig = new Sequelize({
     storage: path.join('database.sqlite')
 })
 export const UserActivity = UserActivityFactory(dbConfig)
-UserActivity.sync({ alter: true })
+export const RetentionQueriesProfile = RetentionQueriesProfileFactory(dbConfig)
+
+// UserActivity.sync({ alter: true })
+// RetentionQueriesProfile.sync({ alter: true })

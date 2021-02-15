@@ -12,7 +12,7 @@ export type UserActivityStatic = typeof Model & {
     new (values?: object, options?: BuildOptions): UserActivityModel;
 }
 
-export function UserActivityFactory (sequelize: Sequelize): UserActivityStatic {
+export const UserActivityFactory = (sequelize: Sequelize): UserActivityStatic => {
     return <UserActivityStatic>sequelize.define('userActivity', {
         id: {
             type: DataTypes.INTEGER,

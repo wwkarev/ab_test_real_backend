@@ -1,19 +1,31 @@
 import express from 'express'
 import { check, validationResult } from 'express-validator'
-import { UserActivity } from '../models'
-import { UserActivityModel } from '../models/userActivity'
+import { createUserActivity, getUserActivities, generateUserActivities } from '../controllers/userActivity'
 
+const MAX_RECORDS_ON_GENERATE = 10000
 const router = express.Router()
 
-router.get('/', (req, res) => {
-    return UserActivity.findAll().then(
-        (userActivities: Array<UserActivityModel>) => {
-            return res.json(userActivities)
+router.get(
+    '/',
+    [
+        check('offset')
+            .not().isEmpty().withMessage('offset is required')
+            .isInt({ min: 0 }).withMessage('offset must be int >= 0'),
+        check('limit')
+            .not().isEmpty().withMessage('limit is required')
+            .isInt({ min: 1 }).withMessage('limit must be int >= 1')
+    ],
+    (req: any, res: any) => {
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            return res.status(400).jsonp(errors.array())
         }
-    ).catch(() => {
-        res.status(500).send({ error: 'database error' })
-    })
-})
+
+        return getUserActivities(req.query.offset, req.query.limit)
+            .then(info => res.json(info))
+            .catch(() => res.status(500).send({ error: 'database error' }))
+    }
+)
 
 router.post(
     '/',
@@ -38,15 +50,28 @@ router.post(
             return res.status(400).jsonp(errors.array())
         }
 
-        return UserActivity.create({
-            userId: req.body.userId,
-            registration: req.body.registration,
-            lastActivity: req.body.lastActivity
-        }).then(() => {
-            return res.send('UserActivity is created')
-        }).catch(() => {
-            return res.status(500).send({ error: 'database error' })
-        })
+        return createUserActivity(req.body.userId, req.body.registration, req.body.lastActivity)
+            .then(() => res.send('UserActivity is created'))
+            .catch((error) => res.status(500).send(error))
+    }
+)
+
+router.post(
+    '/generate_records',
+    [
+        check('quantity')
+            .not().isEmpty().withMessage('quantity is required')
+            .isInt({ min: 1, max: MAX_RECORDS_ON_GENERATE }).withMessage(`quantity must be int > 1, < ${MAX_RECORDS_ON_GENERATE}`)
+    ],
+    (req: any, res: any) => {
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            return res.status(400).jsonp(errors.array())
+        }
+
+        return generateUserActivities(req.body.quantity)
+            .then(() => res.send('UserActivities is created'))
+            .catch((error) => res.status(500).send(error))
     }
 )
 
