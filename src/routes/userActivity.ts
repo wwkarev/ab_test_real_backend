@@ -1,6 +1,11 @@
 import express from 'express'
 import { check, validationResult } from 'express-validator'
-import { createUserActivity, getUserActivities, generateUserActivities } from '../controllers/userActivity'
+import {
+    createUserActivity,
+    getUserActivities,
+    generateUserActivities,
+    calculateRollingRetention
+} from '../controllers/userActivity'
 
 const MAX_RECORDS_ON_GENERATE = 10000
 const router = express.Router()
@@ -52,6 +57,25 @@ router.post(
 
         return createUserActivity(req.body.userId, req.body.registration, req.body.lastActivity)
             .then(() => res.send('UserActivity is created'))
+            .catch((error) => res.status(500).send(error))
+    }
+)
+
+router.get(
+    '/rolling_retention',
+    [
+        check('ndays')
+            .not().isEmpty().withMessage('ndays is required')
+            .isInt({ min: 1 }).withMessage('ndays must be int > 0')
+    ],
+    (req: any, res: any) => {
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) {
+            return res.status(400).jsonp(errors.array())
+        }
+
+        return calculateRollingRetention(req.query.ndays)
+            .then(rollingRetention => res.json(rollingRetention))
             .catch((error) => res.status(500).send(error))
     }
 )
