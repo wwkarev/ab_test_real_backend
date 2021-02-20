@@ -27,8 +27,10 @@ router.get(
         }
 
         return getUserActivities(req.query.offset, req.query.limit)
-            .then(info => res.json(info))
-            .catch(() => res.status(500).send({ error: 'database error' }))
+            .then(info => {
+                res.json(info)
+            })
+            .catch(() => res.status(400).send('database error'))
     }
 )
 
@@ -51,13 +53,15 @@ router.post(
     ],
     (req: any, res: any) => {
         const errors = validationResult(req)
+        console.log("res.set('Access-Control-Allow-Origin', '*')")
         if (!errors.isEmpty()) {
+            console.log(errors.array())
             return res.status(400).jsonp(errors.array())
         }
 
         return createUserActivity(req.body.userId, req.body.registration, req.body.lastActivity)
             .then(() => res.send('UserActivity is created'))
-            .catch((error) => res.status(500).send(error))
+            .catch((error) => res.status(400).send(error))
     }
 )
 
@@ -76,7 +80,7 @@ router.get(
 
         return calculateRollingRetention(req.query.ndays)
             .then(rollingRetention => res.json(rollingRetention))
-            .catch((error) => res.status(500).send(error))
+            .catch((error) => res.status(400).send(error.message))
     }
 )
 
@@ -95,7 +99,7 @@ router.post(
 
         return generateUserActivities(req.body.quantity)
             .then(() => res.send('UserActivities is created'))
-            .catch((error) => res.status(500).send(error))
+            .catch((error) => res.status(400).send(error))
     }
 )
 

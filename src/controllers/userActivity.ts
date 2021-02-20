@@ -15,6 +15,9 @@ export const getUserActivities = async (offset: number, limit: number) => {
     console.log('offset', offset, limit)
     return UserActivity.findAndCountAll({
         offset: offset,
+        order: [
+            ['lastActivity', 'DESC']
+        ],
         limit: limit
     })
 }
