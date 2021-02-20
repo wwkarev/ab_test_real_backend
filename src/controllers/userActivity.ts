@@ -92,5 +92,5 @@ export const calculateRollingRetention = async (nDays: number): Promise<number> 
 
     await RetentionQueriesProfile.create({ returned: timeReturned, installed: timeInstalled, nDays })
 
-    return Promise.resolve(returnedQuantity / installedQuantity)
+    return Promise.resolve(returnedQuantity / installedQuantity * 100)
 }
